@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="A faith-anchored life diagnostic for African women. Discover your archetype, identify your constraint, and build your 90-day action plan.">
+<title>The Integrated Woman Diagnostic</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+--navy:#5C1E0A;--navy-mid:#8B3A1A;--navy-light:#A8432A;
+--gold:#C9A84C;--gold-light:#E8C876;--gold-pale:#F8F0DC;
+--ivory:#FAF5EE;--ivory-dark:#F0E8DC;
+--sage:#3D5A40;--terracotta:#A8432A;
+--text-dark:#1A0F0A;--text-mid:#4A3528;--text-muted:#7A6558;
+--border:#DDD0C0;--border-light:#EDE3D8;
+--success:#2D6A4F;--warn:#8B5010;
+font-size:16px}
+body{font-family:'DM Sans',sans-serif;background:var(--ivory);color:var(--text-dark);min-height:100vh;line-height:1.6}
+h1,h2,h3,h4{font-family:'Cormorant Garamond',serif;font-weight:600;line-height:1.25}
+
+/* ─── LAYOUT ─── */
+.container{max-width:740px;margin:0 auto;padding:0 1.5rem}
+.screen{display:none;animation:fadeIn .4s ease}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ─── PROGRESS BAR ─── */
+#progress-wrap{background:var(--navy);padding:.75rem 1.5rem;position:sticky;top:0;z-index:100}
+.prog-inner{max-width:740px;margin:0 auto;display:flex;align-items:center;gap:1rem}
+.prog-label{color:rgba(255,255,255,.6);font-size:12px;white-space:nowrap}
+.prog-track{flex:1;height:3px;background:rgba(255,255,255,.2);border-radius:2px}
+.prog-fill{height:100%;background:var(--gold);border-radius:2px;transition:width .4s ease}
+.prog-step{color:var(--gold);font-size:12px;font-weight:500;white-space:nowrap}
+#progress-wrap.hidden{display:none}
+
+/* ─── WELCOME ─── */
+.welcome-hero{background:var(--navy);color:#fff;padding:3.5rem 1.5rem 2.5rem;text-align:center;position:relative;overflow:hidden}
+.welcome-hero::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:440px;height:440px;border-radius:50%;border:1px solid rgba(201,168,76,.1);pointer-events:none}
+.welcome-hero::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:300px;height:300px;border-radius:50%;border:1px solid rgba(201,168,76,.07);pointer-events:none}
+.welcome-logo-img{width:180px;height:180px;border-radius:50%;overflow:hidden;margin:0 auto 1.5rem;border:2px solid rgba(201,168,76,.4);box-shadow:0 0 0 6px rgba(201,168,76,.08),0 0 0 12px rgba(201,168,76,.04);position:relative;z-index:1}
+.welcome-logo-img img{width:100%;height:100%;object-fit:cover;display:block}
+.welcome-hero h1{font-size:2.4rem;letter-spacing:-.02em;margin-bottom:.5rem;color:#fff;position:relative;z-index:1}
+.welcome-hero .sub{color:rgba(255,255,255,.55);font-size:.85rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:1.5rem;font-family:'DM Sans',sans-serif;position:relative;z-index:1}
+.welcome-hero p{color:rgba(255,255,255,.75);font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-style:italic;max-width:520px;margin:0 auto 2rem;position:relative;z-index:1}
+.welcome-body{padding:2rem 1.5rem}
+.pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:2rem}
+.pillar{background:#fff;border:1px solid var(--border-light);border-radius:12px;padding:1.25rem;text-align:center}
+.pillar-icon{width:36px;height:36px;background:var(--gold-pale);border-radius:8px;display:flex;align-items:center;justify-content:center;margin:0 auto .75rem;font-size:18px}
+.pillar h4{font-size:.95rem;margin-bottom:.25rem;color:var(--navy-mid)}
+.pillar p{font-size:.78rem;color:var(--text-muted);line-height:1.4}
+.quote-block{background:var(--navy);color:#fff;border-radius:12px;padding:1.5rem;margin-bottom:2rem;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.15rem;line-height:1.7;position:relative;border-left:3px solid var(--gold)}
+.quote-block::before{content:'\201C';font-size:4rem;color:var(--gold);line-height:.6;display:block;margin-bottom:.5rem;font-family:'Cormorant Garamond',serif}
+.quote-attr{font-family:'DM Sans',sans-serif;font-size:.75rem;color:rgba(255,255,255,.5);font-style:normal;margin-top:.75rem}
+.duration-note{background:var(--gold-pale);border:1px solid rgba(201,168,76,.5);border-radius:8px;padding:.75rem 1rem;font-size:.85rem;color:var(--navy-mid);text-align:center;margin-bottom:1.5rem;font-weight:500}
+
+/* ─── BUTTONS ─── */
+.btn{display:inline-flex;align-items:center;gap:.5rem;padding:.75rem 1.75rem;border-radius:8px;font-family:'DM Sans',sans-serif;font-weight:500;font-size:.9rem;cursor:pointer;border:none;transition:all .2s}
+.btn-primary{background:var(--gold);color:var(--navy);width:100%;justify-content:center;font-size:1rem;padding:.9rem 2rem;font-weight:600}
+.btn-primary:hover{background:var(--gold-light)}
+.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--text-mid)}
+.btn-outline:hover{border-color:var(--text-mid)}
+.btn-navy{background:var(--navy);color:#fff}
+.btn-navy:hover{background:var(--navy-mid)}
+.btn-whatsapp{background:#25D366;color:#fff;font-weight:600}
+.btn-whatsapp:hover{background:#1ebe5d}
+.btn-sm{padding:.5rem 1rem;font-size:.82rem}
+.nav-row{display:flex;gap:.75rem;margin-top:1.5rem}
+.nav-row .btn{flex:1;justify-content:center}
+
+/* ─── FORM ELEMENTS ─── */
+.form-group{margin-bottom:1.25rem}
+.form-group label{display:block;font-size:.82rem;font-weight:500;color:var(--text-mid);margin-bottom:.4rem;letter-spacing:.02em}
+.form-group select,.form-group input{width:100%;padding:.7rem .9rem;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.9rem;background:#fff;color:var(--text-dark);appearance:none;cursor:pointer}
+.form-group select:focus,.form-group input:focus{outline:none;border-color:var(--gold)}
+.select-wrap{position:relative}
+.select-wrap::after{content:'▾';position:absolute;right:.9rem;top:50%;transform:translateY(-50%);color:var(--text-muted);pointer-events:none;font-size:.8rem}
+.intake-section{background:#fff;border:1px solid var(--border-light);border-radius:16px;padding:1.75rem;margin-bottom:1.5rem}
+.intake-section h3{font-size:1.1rem;color:var(--navy-mid);margin-bottom:1.25rem}
+
+/* ─── DIMENSION SCREEN ─── */
+.dim-header{background:var(--navy);padding:2rem 1.5rem;color:#fff;margin-bottom:1.5rem}
+.dim-tag{background:rgba(201,168,76,.2);color:var(--gold-light);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;padding:.3rem .75rem;border-radius:4px;display:inline-block;margin-bottom:.75rem;font-family:'DM Sans',sans-serif}
+.dim-header h2{font-size:1.6rem;color:#fff;margin-bottom:.5rem}
+.dim-anchors{display:flex;gap:.75rem;margin-top:.75rem;flex-wrap:wrap}
+.anchor-badge{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:6px;padding:.3rem .75rem;font-size:.75rem;color:rgba(255,255,255,.65)}
+.questions-block{padding:0 1.5rem}
+.question-card{background:#fff;border:1px solid var(--border-light);border-radius:12px;padding:1.5rem;margin-bottom:1rem}
+.question-card .q-text{font-size:.95rem;color:var(--text-dark);margin-bottom:1rem;line-height:1.5}
+.likert-row{display:flex;gap:.4rem;align-items:center}
+.likert-labels{display:flex;justify-content:space-between;font-size:.7rem;color:var(--text-muted);margin-top:.4rem}
+.likert-btn{flex:1;height:36px;border:1.5px solid var(--border);border-radius:6px;background:#fff;cursor:pointer;font-size:.85rem;font-weight:500;color:var(--text-mid);transition:all .15s;font-family:'DM Sans',sans-serif}
+.likert-btn:hover{border-color:var(--gold);background:var(--gold-pale)}
+.likert-btn.selected{background:var(--navy-mid);border-color:var(--navy-mid);color:#fff}
+.dim-nav{padding:1.5rem;display:flex;gap:.75rem}
+.dim-progress{display:flex;gap:.3rem;margin:.75rem 1.5rem}
+.dim-pip{height:3px;flex:1;background:var(--border);border-radius:2px}
+.dim-pip.done{background:var(--gold)}
+.dim-pip.active{background:var(--navy-mid)}
+
+/* ─── PROCESSING ─── */
+.processing{text-align:center;padding:4rem 1.5rem}
+.spinner{width:48px;height:48px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 1.5rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+.processing h3{font-size:1.4rem;color:var(--navy-mid);margin-bottom:.5rem}
+.processing p{color:var(--text-muted);font-size:.9rem}
+
+/* ─── RESULTS ─── */
+.results-header{background:var(--navy);padding:2rem 1.5rem;color:#fff;text-align:center}
+.results-header h2{font-size:1.8rem;color:#fff;margin-bottom:.25rem}
+.results-header p{color:rgba(255,255,255,.6);font-size:.85rem}
+.archetype-card{background:linear-gradient(135deg,var(--navy),var(--navy-mid));border:1px solid rgba(201,168,76,.35);border-radius:16px;padding:1.75rem;margin:1.25rem 1.5rem;color:#fff;position:relative;overflow:hidden}
+.archetype-card::before{content:'';position:absolute;top:-20px;right:-20px;width:140px;height:140px;border-radius:50%;border:1px solid rgba(201,168,76,.15)}
+.arch-label{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem;font-family:'DM Sans',sans-serif}
+.arch-name{font-size:1.6rem;color:#fff;margin-bottom:.5rem}
+.arch-meta{display:flex;gap:.75rem;margin-bottom:1rem;flex-wrap:wrap}
+.arch-tag{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:6px;padding:.2rem .65rem;font-size:.75rem;color:rgba(255,255,255,.7)}
+.arch-body{font-size:.88rem;color:rgba(255,255,255,.8);line-height:1.6}
+.scores-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.75rem;padding:0 1.5rem;margin-bottom:1.25rem}
+.score-card{background:#fff;border:1px solid var(--border-light);border-radius:10px;padding:1rem}
+.score-dim{font-size:.72rem;color:var(--text-muted);font-weight:500;letter-spacing:.04em;margin-bottom:.25rem}
+.score-val{font-size:1.6rem;font-weight:600;font-family:'Cormorant Garamond',serif;line-height:1}
+.score-bar{height:4px;background:var(--border);border-radius:2px;margin-top:.5rem}
+.score-fill{height:100%;border-radius:2px;transition:width .8s ease}
+.chart-wrap{padding:1rem 1.5rem;margin-bottom:.5rem}
+.chart-wrap canvas{max-height:300px}
+.constraint-block{margin:1.25rem 1.5rem;background:var(--gold-pale);border:1.5px solid var(--gold);border-radius:12px;padding:1.5rem}
+.constraint-block .cl{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--warn);font-weight:500;margin-bottom:.4rem}
+.constraint-block h3{font-size:1.2rem;color:var(--navy-mid);margin-bottom:.5rem}
+.constraint-block p{font-size:.88rem;color:var(--text-mid);line-height:1.6}
+.plan-block{margin:1.25rem 1.5rem}
+.plan-block h3{font-size:1.1rem;color:var(--navy-mid);margin-bottom:1rem}
+.phase-card{background:#fff;border:1px solid var(--border-light);border-radius:12px;padding:1.25rem;margin-bottom:.75rem}
+.phase-label{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;font-weight:500;margin-bottom:.4rem}
+.phase-label.p1{color:var(--navy-light)}.phase-label.p2{color:var(--sage)}.phase-label.p3{color:var(--navy-mid)}
+.phase-card h4{font-size:1rem;color:var(--text-dark);margin-bottom:.5rem}
+.phase-card p{font-size:.85rem;color:var(--text-mid);line-height:1.6}
+.scripture-badge{display:inline-block;background:var(--navy-mid);color:var(--gold);font-size:.75rem;padding:.2rem .65rem;border-radius:5px;margin-top:.5rem;font-family:'Cormorant Garamond',serif;font-style:italic}
+.align-table-wrap{margin:1.25rem 1.5rem}
+.align-table-wrap h3{font-size:1.1rem;color:var(--navy-mid);margin-bottom:.75rem}
+.align-table{width:100%;border-collapse:collapse;font-size:.82rem}
+.align-table th{background:var(--navy);color:#fff;padding:.6rem .8rem;text-align:left;font-weight:500}
+.align-table td{padding:.6rem .8rem;border-bottom:1px solid var(--border-light);vertical-align:top}
+.align-table tr:hover td{background:var(--ivory-dark)}
+.status-pill{display:inline-block;padding:.15rem .6rem;border-radius:4px;font-size:.72rem;font-weight:500}
+.status-aligned{background:#d4edda;color:#1a5c2d}.status-partial{background:#fff3cd;color:#7a5c00}.status-critical{background:#f8d7da;color:#7a1a1a}.status-emerging{background:#cce5ff;color:#0a4072}
+.ai-report{margin:1.25rem 1.5rem;background:#fff;border:1px solid var(--border-light);border-radius:16px;padding:1.75rem}
+.ai-report h3{font-size:1.1rem;color:var(--navy-mid);margin-bottom:.75rem}
+.ai-content{line-height:1.8;white-space:pre-wrap;font-family:'Cormorant Garamond',serif;font-size:1rem;color:var(--text-mid)}
+.section-div{height:1px;background:var(--border-light);margin:1.5rem}
+.sticky-nav{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--border-light);padding:1rem 1.5rem;display:flex;gap:.75rem}
+.sticky-nav .btn{flex:1;justify-content:center}
+.reading-plan{margin:1.25rem 1.5rem}
+.reading-plan h3{font-size:1.1rem;color:var(--navy-mid);margin-bottom:.75rem}
+.reading-row{display:flex;gap:.75rem;align-items:center;padding:.6rem 0;border-bottom:1px solid var(--border-light);font-size:.84rem}
+.reading-week{background:var(--navy-mid);color:var(--gold);width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:500;flex-shrink:0;font-family:'DM Sans',sans-serif}
+.reading-theme{color:var(--text-dark);font-weight:500}
+.reading-pass{color:var(--text-muted);margin-left:auto;white-space:nowrap;font-size:.78rem}
+.error-msg{background:#f8d7da;border:1px solid #f5c2c7;border-radius:8px;padding:1rem;color:#7a1a1a;font-size:.85rem;margin:1rem 0}
+</style>
+</head>
+<body>
+
+<!-- PROGRESS BAR -->
+<div id="progress-wrap" class="hidden">
+  <div class="prog-inner">
+    <span class="prog-label">Your diagnostic</span>
+    <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    <span class="prog-step" id="prog-step">0 / 10</span>
+  </div>
+</div>
+
+<!-- SCREEN 0: WELCOME -->
+<div id="screen-0" class="screen active">
+  <div class="welcome-hero">
+    <div class="welcome-logo-img">
+      <img src="data:image/jpeg;base64,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" alt="The Integrated Woman" />
+    </div>
+    <div class="sub">A Strategic Life Diagnostic Tool</div>
+    <p>Removing the guesswork from purpose, profession, and faith — designed for the African woman navigating modern life.</p>
+  </div>
+  <div class="welcome-body container">
+    <div class="pillars">
+      <div class="pillar">
+        <div class="pillar-icon">🧭</div>
+        <h4>Purpose Clarity</h4>
+        <p>Eliminate drift. Know what you're here for.</p>
+      </div>
+      <div class="pillar">
+        <div class="pillar-icon">⚡</div>
+        <h4>Strategic Action</h4>
+        <p>One constraint. 90-day architecture. No guesswork.</p>
+      </div>
+      <div class="pillar">
+        <div class="pillar-icon">✝️</div>
+        <h4>Biblical Grounding</h4>
+        <p>Faith that works on Monday, not just Sunday.</p>
+      </div>
+    </div>
+    <div class="quote-block">
+      Who knows whether you have not come to the kingdom for such a time as this?
+      <div class="quote-attr">— Esther 4:14 (AMP)</div>
+    </div>
+    <div class="duration-note">⏱ This assessment takes 12–15 minutes · 40 questions across 8 dimensions · Powered by AI</div>
+    <button class="btn btn-primary" onclick="startDiagnostic()">Begin your assessment →</button>
+    <p style="text-align:center;font-size:.78rem;color:var(--text-muted);margin-top:.75rem">Designed for African women. Built on HBR research + Scripture.</p>
+  </div>
+</div>
+
+<!-- SCREEN 1: INTAKE -->
+<div id="screen-1" class="screen">
+  <div class="dim-header">
+    <div class="dim-tag">Step 1 of 10</div>
+    <h2>Tell us about yourself</h2>
+    <p style="color:rgba(255,255,255,.65);font-size:.88rem;margin-top:.4rem">This context makes your diagnostic accurate. Honest answers produce useful results.</p>
+  </div>
+  <div style="padding:0 1.5rem 1.5rem">
+    <div class="intake-section">
+      <h3>Your name & season</h3>
+      <div class="form-group">
+        <label>First name</label>
+        <input type="text" id="intake-name" placeholder="Enter your first name" />
+      </div>
+      <div class="form-group">
+        <label>Current life stage</label>
+        <div class="select-wrap">
+          <select id="intake-stage">
+            <option value="">Select your stage...</option>
+            <option value="student">Student / recent graduate</option>
+            <option value="early">Early career (22–30)</option>
+            <option value="mid">Mid-career (31–40)</option>
+            <option value="senior">Senior career (41–50)</option>
+            <option value="entrepreneur">Entrepreneur / self-employed</option>
+            <option value="transition">In active transition</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="intake-section">
+      <h3>What's pressing most right now?</h3>
+      <div class="form-group">
+        <label>Primary concern</label>
+        <div class="select-wrap">
+          <select id="intake-domain">
+            <option value="">Select your main concern...</option>
+            <option value="purpose">Purpose & calling — I'm not sure what I'm here for</option>
+            <option value="career">Career & professional growth — I'm stuck or under-valued</option>
+            <option value="family">Marriage & family — the roles are pulling me apart</option>
+            <option value="finances">Finances & wealth — I'm not building anything</option>
+            <option value="energy">Energy & wellbeing — I'm running on empty</option>
+            <option value="faith">Faith & values — Sunday and Monday feel disconnected</option>
+            <option value="impact">Community impact — I want to do more but don't know how</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="intake-section">
+      <h3>Your faith & Kenya context</h3>
+      <div class="form-group">
+        <label>How active is faith in your daily decisions?</label>
+        <div class="select-wrap">
+          <select id="intake-faith">
+            <option value="">Select...</option>
+            <option value="central">Very central — it guides most decisions</option>
+            <option value="active">Active but compartmentalised — strong at church, less so at work</option>
+            <option value="cultural">Cultural background — faith is identity, less a daily practice</option>
+            <option value="exploring">Actively exploring — questioning or deepening</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Extended family obligations level</label>
+        <div class="select-wrap">
+          <select id="intake-family">
+            <option value="">Select...</option>
+            <option value="high">High — I regularly support parents, siblings, extended kin</option>
+            <option value="medium">Medium — some obligations, manageable</option>
+            <option value="low">Minimal — primarily my own household</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>First-generation professional status</label>
+        <div class="select-wrap">
+          <select id="intake-firstgen">
+            <option value="">Select...</option>
+            <option value="yes">Yes — I'm the first in my family at this level</option>
+            <option value="partly">Partly — limited family precedent</option>
+            <option value="no">No — family has professional experience</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="submitIntake()">Continue to assessment →</button>
+  </div>
+</div>
+
+<!-- SCREENS 2–9: DIMENSION QUESTIONS -->
+<div id="screen-dim" class="screen">
+  <div class="dim-header" id="dim-header"></div>
+  <div class="dim-pip-row" id="dim-pips"></div>
+  <div class="questions-block" id="dim-questions"></div>
+  <div class="dim-nav">
+    <button class="btn btn-outline" id="dim-back" onclick="dimBack()">← Back</button>
+    <button class="btn btn-navy" id="dim-next" onclick="dimNext()">Next dimension →</button>
+  </div>
+</div>
+
+<!-- SCREEN PROCESSING -->
+<div id="screen-processing" class="screen">
+  <div class="processing">
+    <div class="spinner"></div>
+    <h3>Analysing your profile...</h3>
+    <p id="proc-msg">Computing your dimension scores</p>
+  </div>
+</div>
+
+<!-- SCREEN RESULTS -->
+<div id="screen-results" class="screen">
+  <div class="results-header">
+    <h2 id="res-name">Your Diagnostic Report</h2>
+    <p id="res-date"></p>
+  </div>
+
+  <!-- Archetype card -->
+  <div class="archetype-card" id="archetype-card"></div>
+
+  <!-- Radar chart -->
+  <div class="chart-wrap">
+    <canvas id="radarChart" role="img" aria-label="Radar chart of 8 life dimension scores"></canvas>
+  </div>
+
+  <!-- Score grid -->
+  <div class="scores-grid" id="scores-grid"></div>
+
+  <!-- Critical constraint -->
+  <div class="constraint-block" id="constraint-block"></div>
+
+  <!-- AI Report -->
+  <div class="ai-report" id="ai-report">
+    <h3>Your Personalised Analysis</h3>
+    <div class="ai-content" id="ai-content">Generating your personalised narrative...</div>
+  </div>
+
+  <!-- 90-day plan -->
+  <div class="plan-block" id="plan-block"></div>
+
+  <!-- Section divider -->
+  <div class="section-div"></div>
+
+  <!-- Biblical alignment -->
+  <div class="align-table-wrap" id="align-block"></div>
+
+  <!-- Reading plan -->
+  <div class="reading-plan" id="reading-plan"></div>
+
+  <div style="height:6rem"></div>
+  <div class="sticky-nav">
+    <button class="btn btn-outline btn-sm" onclick="restartDiag()">↺ Retake</button>
+    <button class="btn btn-primary btn-sm" id="btn-pdf" onclick="downloadPDF()">⬇ Download PDF</button>
+    <button class="btn btn-whatsapp btn-sm" onclick="shareWhatsApp()">📲 WhatsApp Card</button>
+  </div>
+
+  <!-- WhatsApp share modal -->
+  <div id="wa-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:999;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:16px;padding:1.5rem;max-width:340px;width:90%;text-align:center;">
+      <h3 style="font-family:'Cormorant Garamond',serif;color:var(--navy);margin-bottom:.5rem;font-size:1.3rem;">Your Share Card</h3>
+      <p style="font-size:.8rem;color:var(--text-muted);margin-bottom:1rem;">Save this image and share on WhatsApp or Instagram</p>
+      <canvas id="share-canvas" style="width:100%;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.15)"></canvas>
+      <div style="display:flex;gap:.75rem;margin-top:1rem;">
+        <button class="btn btn-outline btn-sm" style="flex:1" onclick="document.getElementById('wa-modal').style.display='none'">Close</button>
+        <button class="btn btn-primary btn-sm" style="flex:1" onclick="saveShareCard()">Save Image</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+// ═══════════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════════
+const DIMS = [
+  {id:'purpose',label:'Purpose Clarity',tag:'The Calling Compass',hbr:'Christensen Resource Allocation Test',biblical:'Jer 29:11 · Esth 4:14',
+   qs:['I can state my core life purpose in one clear sentence — not my job title, but the deep "why" beneath everything.',
+       'My calendar from the last 4 weeks reflects what actually matters to me, not just what arrived in front of me.',
+       'I regularly feel that my work — paid or unpaid — makes a meaningful difference beyond my immediate circle.',
+       'I have a clear picture of how I want to be remembered at the end of my life, and my current life is moving toward that.',
+       'There is a strong connection between my specific gifts, my current role, and the problem I believe I exist to solve.']},
+  {id:'roles',label:'Role Architecture',tag:'The Multi-Crown Manager',hbr:'Ibarra — Working Identity Theory',biblical:'Prov 31 · Luke 10:38–42',
+   qs:['I have clear, workable boundaries between my major roles — professional, spouse/partner, mother, daughter, community member.',
+       'I deliberately allocate my best energy to what matters most, not to whoever is loudest at any given moment.',
+       'Cultural and family expectations rarely pull me into roles I did not choose at the cost of roles I value most.',
+       'When role demands conflict, I have a clear decision framework — I am not always in crisis mode choosing.',
+       'I am usually genuinely present in the role I am currently in, not mentally in a different one.']},
+  {id:'professional',label:'Professional Positioning',tag:'The Market Value Mapper',hbr:'Roger Martin — Cascading Choices',biblical:'Dan 1:17–20 · Acts 16:14',
+   qs:['I can state in one sentence the specific problem I solve better than most — and the right people know it.',
+       'My professional reputation has been deliberately built, not just accidentally accumulated over time.',
+       'I have a sponsor — not just a mentor — someone with power who actively advocates for me when I am not in the room.',
+       'I invest proactively in capability development that expands my market value, not just compliance training.',
+       'I am visible and credibly known at levels above my current position, to people who control future opportunities.']},
+  {id:'relational',label:'Relational Capital',tag:'The Network Architecture',hbr:'Linda Hill — Coalition Building',biblical:'Ruth 1–4 · Eccl 4:9–12',
+   qs:['I have 1–2 people in my life who regularly tell me honest, hard truths about my blind spots — and I listen.',
+       'My professional network includes people who challenge me, open doors for me, and actively sponsor my advancement.',
+       'I am actively investing in other women — mentoring, advocating, opening doors — not just consuming from my network.',
+       'My relationships cross sectors, professions, tribes, and social contexts — not a relational monoculture.',
+       'When things go wrong professionally, I have a solid community of people to call. I am not alone in crisis.']},
+  {id:'financial',label:'Financial Sovereignty',tag:'The Stewardship Score',hbr:'HBR Financial Independence Research',biblical:'Luke 19:13 · Prov 31:16',
+   qs:['I have full, independent visibility of my financial picture — income, expenses, assets, liabilities, net worth.',
+       'I have a personal wealth-building plan with a 5+ year horizon — not just a monthly household budget.',
+       'If my primary income stopped tomorrow, I have a meaningful financial runway — I am not living paycheck to paycheck.',
+       'I actively invest for long-term wealth — equities, property, bonds, or business — not just managing expenses.',
+       'I am on track for children\'s education, my own retirement, and major health costs — this planning is active.']},
+  {id:'faith',label:'Faith Integration',tag:'The Authentic Anchor',hbr:"Parker Palmer — The Undivided Life",biblical:'Rom 12:2 · Col 3:23–24',
+   qs:['My faith genuinely influences how I handle professional conflict, ethical pressure, and hard leadership decisions.',
+       'When I face major decisions, I have a real discernment process — not just deciding, then asking for blessing after.',
+       'My faith is primarily a source of strength and direction — not primarily a source of guilt and obligation.',
+       'I can name a specific biblical principle — not just a general verse — that shaped a concrete decision in the last 6 months.',
+       'My Monday behaviour authentically reflects my Sunday faith — in how I treat people, handle money, and respond to pressure.']},
+  {id:'energy',label:'Energy Architecture',tag:'The Capacity Map',hbr:'Schwartz & McCarthy — Energy Management',biblical:'Mark 6:31 · Isa 40:31',
+   qs:['I feel genuinely rested on a regular basis — not just "not sick", but actually replenished and restored.',
+       'I proactively protect my energy — sleep, movement, nutrition, solitude — rather than getting whatever is left over.',
+       'Other people\'s urgency rarely overrides my priorities. I do not begin most days already reactive.',
+       'The majority of my weekly energy goes toward what I value most — not toward what simply shouts loudest.',
+       'My current pace is genuinely sustainable — I could live at this intensity for another 5 years without breakdown.']},
+  {id:'legacy',label:'Legacy & Community Impact',tag:'The Footprint Forecast',hbr:'Christensen — Marginal Cost Fallacy',biblical:'Mic 6:8 · Gal 6:9–10',
+   qs:['I am actively developing women and girls coming behind me — as mentor, sponsor, coach, or model.',
+       'I can name a specific community problem I take personal responsibility for — not just care about generally.',
+       'My current career and life trajectory clearly leads toward the impact I envision for myself at age 60.',
+       'I am known in my community for something specific — a value, a contribution, or a cause that is mine.',
+       'The impact I create is beginning to sustain itself — I am building systems and people, not just personal outputs.']}
+];
+
+const ARCHETYPES = {
+  striving_star:{name:'The Striving Star',strength:'Results, discipline, external credibility',blind:'Has no anchor when achievement doesn\'t satisfy',constraint:'purpose',biblical:'Martha (Luke 10)',move:'Stop adding. Start subtracting. Block one full day to answer: "Why am I doing all this?"'},
+  faith_pioneer:{name:'The Faith-Fuelled Pioneer',strength:'Clarity of purpose, spiritual grounding, natural inspiration',blind:'Confuses calling with strategy — assumes faith will fix the professional positioning problem',constraint:'professional',biblical:'Esther before Mordecai\'s challenge',move:'Build the business case for your calling. Calling needs a chassis — strategy, positioning, and finance.'},
+  exhausted_achiever:{name:'The Exhausted Achiever',strength:'Output, commitment, capacity to carry extraordinary loads',blind:'Identity fused to productivity; treats rest as laziness',constraint:'energy',biblical:'Elijah post-Carmel (1 Kings 19)',move:'God\'s first prescription was not a vision. It was food and sleep. Honour that sequence.'},
+  hidden_gem:{name:'The Hidden Gem',strength:'Depth, deep competence, quiet and consistent reliability',blind:'Believes work speaks for itself. Has not learned that visibility is stewardship, not vanity.',constraint:'relational',biblical:'Deborah — wisdom waiting to be discovered',move:'Identify 3 people who need to know what you know. Arrange 3 conversations in 30 days.'},
+  community_anchor:{name:'The Community Anchor',strength:'Generosity, deep relational warmth, trusted community presence',blind:'Gives from poverty, not prosperity. Unsustainable generosity with no financial foundation.',constraint:'financial',biblical:'Dorcas/Tabitha (Acts 9)',move:'Build the financial foundation so your giving outlasts your presence in the room.'},
+  emerging_leader:{name:'The Emerging Leader',strength:'Balance, openness, genuine willingness to grow across all areas',blind:'Diffusion — doing many things adequately instead of one thing with excellence',constraint:'professional',biblical:'Young Mary — chosen, carrying something extraordinary, still becoming',move:'Stop trying to be complete. Choose ONE dimension to push to 9 in the next 90 days.'},
+  integrated_woman:{name:'The Integrated Woman',strength:'Coherence, sustainability across dimensions, multiplication capacity',blind:'May have stopped being challenged; or may be hoarding wisdom and experience',constraint:'legacy',biblical:'Proverbs 31 — not perfection, but integrated excellence',move:'Who are you raising to where you are? That is now your primary work.'},
+  role_trapped:{name:'The Role-Trapped Achiever',strength:'Loyalty, deep reliability, strong family commitment',blind:'Has accepted others\' definition of her life as if it were her own',constraint:'roles',biblical:'Ruth at the crossroads between assigned life and chosen life',move:'Define one thing in your life that is entirely, non-negotiably yours — and protect it fiercely.'}
+};
+
+const READING_PLAN = [
+  {w:1,theme:'You were made on purpose',pass:'Psalm 139:1–18'},
+  {w:2,theme:'Calling before clarity',pass:'Genesis 12:1–9'},
+  {w:3,theme:'Role and identity',pass:'Luke 10:38–42'},
+  {w:4,theme:'Strategic positioning',pass:'Esther 4–5'},
+  {w:5,theme:'Excellence as witness',pass:'Daniel 1'},
+  {w:6,theme:'Relational investment',pass:'Ruth 2–3'},
+  {w:7,theme:'Financial stewardship',pass:'Luke 19:11–27'},
+  {w:8,theme:'Faith in the workplace',pass:'Colossians 3:17–25'},
+  {w:9,theme:'The cost and gift of rest',pass:'1 Kings 19:1–18'},
+  {w:10,theme:'Leading in your generation',pass:'Judges 4–5'},
+  {w:11,theme:'Legacy and multiplication',pass:'Titus 2:1–8'},
+  {w:12,theme:'The integrated life',pass:'Proverbs 31'}
+];
+
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+let state = {
+  currentScreen:'welcome',
+  currentDim:0,
+  intake:{name:'',stage:'',domain:'',faith:'',family:'',firstgen:''},
+  answers:{},  // dimId -> [1..5, ...]
+  scores:{},   // dimId -> 1..10
+  archetype:null,
+  constraint:null
+};
+
+// ═══════════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════════
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function updateProgress(step,total){
+  const wrap = document.getElementById('progress-wrap');
+  wrap.classList.remove('hidden');
+  const pct = (step/total)*100;
+  document.getElementById('prog-fill').style.width = pct+'%';
+  document.getElementById('prog-step').textContent = step+' / '+total;
+}
+
+function startDiagnostic(){
+  showScreen('screen-1');
+  updateProgress(1,10);
+}
+
+function submitIntake(){
+  const name = document.getElementById('intake-name').value.trim();
+  const stage = document.getElementById('intake-stage').value;
+  const domain = document.getElementById('intake-domain').value;
+  const faith = document.getElementById('intake-faith').value;
+  const family = document.getElementById('intake-family').value;
+  const firstgen = document.getElementById('intake-firstgen').value;
+  if(!name||!stage||!domain||!faith||!family||!firstgen){
+    alert('Please complete all fields to get an accurate diagnostic.');return;
+  }
+  state.intake = {name,stage,domain,faith,family,firstgen};
+  state.currentDim = 0;
+  loadDimension(0);
+  showScreen('screen-dim');
+  updateProgress(2,10);
+}
+
+// ═══════════════════════════════════════════════════════════
+// DIMENSION SCREEN
+// ═══════════════════════════════════════════════════════════
+function loadDimension(idx){
+  const dim = DIMS[idx];
+  if(!state.answers[dim.id]) state.answers[dim.id]=[0,0,0,0,0];
+
+  document.getElementById('dim-header').innerHTML = `
+    <div class="dim-tag">Dimension ${idx+1} of 8 · ${dim.tag}</div>
+    <h2>${dim.label}</h2>
+    <div class="dim-anchors">
+      <span class="anchor-badge">📊 ${dim.hbr}</span>
+      <span class="anchor-badge">✝ ${dim.biblical}</span>
+    </div>`;
+
+  const pipsHtml = DIMS.map((_,i)=>`<div class="dim-pip${i<idx?' done':i===idx?' active':''}"></div>`).join('');
+  document.getElementById('dim-pips').innerHTML = `<div class="dim-progress">${pipsHtml}</div>`;
+
+  const qsHtml = dim.qs.map((q,qi)=>{
+    const cur = state.answers[dim.id][qi]||0;
+    const btns = [1,2,3,4,5].map(v=>`<button class="likert-btn${cur===v?' selected':''}" onclick="selectLikert('${dim.id}',${qi},${v})">${v}</button>`).join('');
+    return `<div class="question-card">
+      <div class="q-text">${qi+1}. ${q}</div>
+      <div class="likert-row">${btns}</div>
+      <div class="likert-labels"><span>Strongly disagree</span><span>Strongly agree</span></div>
+    </div>`;
+  }).join('');
+  document.getElementById('dim-questions').innerHTML = qsHtml;
+  document.getElementById('dim-back').style.display = idx===0?'none':'flex';
+  document.getElementById('dim-next').textContent = idx===7?'Complete assessment →':'Next dimension →';
+}
+
+function selectLikert(dimId,qi,val){
+  state.answers[dimId][qi] = val;
+  const dim = DIMS.find(d=>d.id===dimId);
+  loadDimension(DIMS.indexOf(dim));
+}
+
+function dimBack(){
+  if(state.currentDim===0){showScreen('screen-1');updateProgress(1,10);return;}
+  state.currentDim--;
+  loadDimension(state.currentDim);
+  updateProgress(state.currentDim+2,10);
+}
+
+function dimNext(){
+  const dim = DIMS[state.currentDim];
+  const ans = state.answers[dim.id]||[];
+  if(ans.some(v=>v===0)){alert('Please answer all 5 questions before continuing.');return;}
+  if(state.currentDim===7){
+    runDiagnostic();return;
+  }
+  state.currentDim++;
+  loadDimension(state.currentDim);
+  updateProgress(state.currentDim+2,10);
+}
+
+// ═══════════════════════════════════════════════════════════
+// SCORING
+// ═══════════════════════════════════════════════════════════
+function computeScores(){
+  DIMS.forEach(d=>{
+    const ans = state.answers[d.id]||[3,3,3,3,3];
+    const avg = ans.reduce((a,b)=>a+b,0)/5;
+    state.scores[d.id] = Math.round(avg*2);
+  });
+}
+
+function identifyArchetype(){
+  const s = state.scores;
+  const isHigh = id=>s[id]>=7;
+  const isLow = id=>s[id]<=4;
+  const isMid = id=>s[id]>=5&&s[id]<=6;
+
+  // Check energy first (override rule)
+  if(s.energy<=3){state.archetype='exhausted_achiever';return;}
+
+  // Count high scores
+  const highCount = Object.values(s).filter(v=>v>=7).length;
+  if(highCount>=5){state.archetype='integrated_woman';return;}
+
+  if(isHigh('professional')&&isLow('purpose')&&!isHigh('faith')){state.archetype='striving_star';return;}
+  if(isHigh('purpose')&&isHigh('faith')&&isLow('professional')&&isLow('financial')){state.archetype='faith_pioneer';return;}
+  if(isLow('energy')&&highCount>=2){state.archetype='exhausted_achiever';return;}
+  if(isHigh('purpose')&&isLow('professional')&&isLow('relational')){state.archetype='hidden_gem';return;}
+  if(isHigh('relational')&&isHigh('legacy')&&isLow('financial')&&!isHigh('professional')){state.archetype='community_anchor';return;}
+  if(isLow('roles')&&isLow('professional')){state.archetype='role_trapped';return;}
+  if(Object.values(s).every(isMid)){state.archetype='emerging_leader';return;}
+  // Default
+  state.archetype='emerging_leader';
+}
+
+function identifyConstraint(){
+  const arch = ARCHETYPES[state.archetype];
+  state.constraint = arch.constraint;
+}
+
+// ═══════════════════════════════════════════════════════════
+// RENDER RESULTS
+// ═══════════════════════════════════════════════════════════
+function renderResults(){
+  const name = state.intake.name;
+  const arch = ARCHETYPES[state.archetype];
+  const s = state.scores;
+  const now = new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+
+  document.getElementById('res-name').textContent = `${name}'s Integrated Life Diagnostic`;
+  document.getElementById('res-date').textContent = now;
+
+  // Archetype
+  const constraintDim = DIMS.find(d=>d.id===state.constraint);
+  document.getElementById('archetype-card').innerHTML = `
+    <div class="arch-label">Your Archetype</div>
+    <div class="arch-name">${arch.name}</div>
+    <div class="arch-meta">
+      <span class="arch-tag">💪 ${arch.strength.split(',')[0]}</span>
+      <span class="arch-tag">✝ ${arch.biblical}</span>
+    </div>
+    <div class="arch-body">${arch.blind}</div>
+    <div style="margin-top:.75rem;padding-top:.75rem;border-top:1px solid rgba(255,255,255,.15);font-size:.82rem;color:rgba(255,255,255,.75)">
+      <strong style="color:var(--gold-light)">Your prescriptive next move:</strong> ${arch.move}
+    </div>`;
+
+  // Score grid
+  const colourMap={10:'#2D6A4F',9:'#3D8A65',8:'#4CAF81',7:'#7BC67E',6:'#F9C74F',5:'#F8961E',4:'#F3722C',3:'#E05252',2:'#C0392B',1:'#922B21'};
+  const scoreHtml = DIMS.map(d=>{
+    const score = s[d.id]||5;
+    const pct = score*10;
+    const col = colourMap[score]||'#888';
+    return `<div class="score-card">
+      <div class="score-dim">${d.label}</div>
+      <div class="score-val" style="color:${col}">${score}<span style="font-size:.8rem;color:var(--text-muted)">/10</span></div>
+      <div class="score-bar"><div class="score-fill" style="width:${pct}%;background:${col}"></div></div>
+    </div>`;
+  }).join('');
+  document.getElementById('scores-grid').innerHTML = scoreHtml;
+
+  // Radar chart
+  const ctx = document.getElementById('radarChart').getContext('2d');
+  new Chart(ctx,{
+    type:'radar',
+    data:{
+      labels:DIMS.map(d=>d.label.replace(' ','\\n')),
+      datasets:[{
+        label:'Your scores',
+        data:DIMS.map(d=>s[d.id]||5),
+        backgroundColor:'rgba(201,168,76,0.18)',
+        borderColor:'#C9A84C',
+        borderWidth:2.5,
+        pointBackgroundColor:'#8B3A1A',
+        pointBorderColor:'#C9A84C',
+        pointBorderWidth:1.5,
+        pointRadius:5
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      scales:{r:{min:0,max:10,ticks:{stepSize:2,font:{size:10},color:'#7A6558'},grid:{color:'rgba(90,30,10,0.08)'},pointLabels:{font:{size:10},color:'#5C1E0A'}}},
+      plugins:{legend:{display:false}}
+    }
+  });
+
+  // Constraint
+  document.getElementById('constraint-block').innerHTML = `
+    <div class="cl">⚠ Critical Constraint</div>
+    <h3>${constraintDim.label}</h3>
+    <p>This is the single bottleneck whose resolution unlocks the most cascade improvement across your other dimensions. One constraint at a time — address this one first.</p>
+    <div style="margin-top:.75rem;font-size:.82rem;color:var(--sage);font-style:italic">
+      ✝ "${constraintDim.biblical}" — Your biblical anchor for this season.
+    </div>`;
+
+  // 90-day plan
+  const phases = [
+    {cls:'p1',label:'Phase 1 — Days 1–30: STABILISE',title:`Address your ${constraintDim.label} acutely`,
+     body:`Identify the most acute symptom in your ${constraintDim.label} dimension and address it with one daily or weekly habit. This is not the time for overhaul — it is the time for one consistent action. Tell one person what you are doing.`,
+     pass:constraintDim.biblical},
+    {cls:'p2',label:'Phase 2 — Days 31–60: BUILD',title:'Construct the structural solution',
+     body:`Move beyond the acute fix and build the infrastructure: a system, a relationship, a boundary, or a financial structure that makes improvement in your ${constraintDim.label} sustainable. One structural change only.`,
+     pass:'Nehemiah 2:17–18 — Come, let us build'},
+    {cls:'p3',label:'Phase 3 — Days 61–90: EXTEND',title:'Unlock the adjacent dimension',
+     body:`With your constraint dimension stabilised and building, apply your progress to unlock one adjacent area of growth. You are no longer in crisis management — you are executing a plan. Review and set your next 90-day constraint.`,
+     pass:'Philippians 3:13–14 — Forgetting what is behind, pressing forward'}
+  ];
+  const planHtml = phases.map(p=>`
+    <div class="phase-card">
+      <div class="phase-label ${p.cls}">${p.label}</div>
+      <h4>${p.title}</h4>
+      <p>${p.body}</p>
+      <span class="scripture-badge">${p.pass}</span>
+    </div>`).join('');
+  document.getElementById('plan-block').innerHTML = `<h3>Your 90-Day Action Architecture</h3>${planHtml}`;
+
+  // Biblical alignment
+  const alignData = [
+    {area:'Work identity',current:'Based on your scores',principle:'Working for the Lord, not for human approval',status: s.faith>=7&&s.purpose>=7?'aligned':s.faith>=5?'partial':'critical'},
+    {area:'Financial stewardship',current:'Active wealth building',principle:'Trade while I am away — active management (Luke 19:13)',status: s.financial>=7?'aligned':s.financial>=5?'partial':'critical'},
+    {area:'Rest & renewal',current:'Current energy practice',principle:'Come away and rest a while (Mark 6:31)',status: s.energy>=7?'aligned':s.energy>=5?'partial':'critical'},
+    {area:'Relational investment',current:'Giving and receiving',principle:'Iron sharpens iron — mutual accountability (Prov 27:17)',status: s.relational>=7?'aligned':s.relational>=5?'partial':'emerging'},
+    {area:'Purpose & calling',current:'Clarity of direction',principle:'For such a time as this (Esther 4:14)',status: s.purpose>=7?'aligned':s.purpose>=5?'emerging':'critical'},
+    {area:'Community impact',current:'Legacy investment',principle:'Do not grow weary in doing good (Gal 6:9)',status: s.legacy>=7?'aligned':s.legacy>=5?'partial':'emerging'}
+  ];
+  const statusMap = {aligned:{cls:'status-aligned',text:'Aligned'},partial:{cls:'status-partial',text:'Partial'},critical:{cls:'status-critical',text:'Critical'},emerging:{cls:'status-emerging',text:'Emerging'}};
+  const tableRows = alignData.map(r=>{
+    const st = statusMap[r.status];
+    return `<tr><td><strong>${r.area}</strong></td><td style="font-style:italic;color:var(--text-muted)">${r.principle}</td><td><span class="status-pill ${st.cls}">${st.text}</span></td></tr>`;
+  }).join('');
+  document.getElementById('align-block').innerHTML = `
+    <h3>Biblical Alignment Map</h3>
+    <table class="align-table">
+      <thead><tr><th>Life Area</th><th>Biblical Principle</th><th>Status</th></tr></thead>
+      <tbody>${tableRows}</tbody>
+    </table>`;
+
+  // Reading plan
+  const rpHtml = READING_PLAN.map(r=>`
+    <div class="reading-row">
+      <div class="reading-week">W${r.w}</div>
+      <div class="reading-theme">${r.theme}</div>
+      <div class="reading-pass">${r.pass}</div>
+    </div>`).join('');
+  document.getElementById('reading-plan').innerHTML = `<h3>Your 12-Week Scripture Reading Plan</h3>${rpHtml}`;
+
+  showScreen('screen-results');
+  updateProgress(10,10);
+
+  // Call AI for narrative
+  generateAIReport();
+}
+
+// ═══════════════════════════════════════════════════════════
+// AI REPORT
+// ═══════════════════════════════════════════════════════════
+async function generateAIReport(){
+  const name = state.intake.name;
+  const arch = ARCHETYPES[state.archetype];
+  const s = state.scores;
+  const constraintDim = DIMS.find(d=>d.id===state.constraint);
+  const scoresSummary = DIMS.map(d=>`${d.label}: ${s[d.id]}/10`).join(', ');
+
+  const prompt = `You are a senior life strategy coach working with African women, deeply grounded in Christian faith and HBR research. You are writing a personalised diagnostic narrative for a woman named ${name}.
+
+Context about ${name}:
+- Life stage: ${state.intake.stage}
+- Pressing concern: ${state.intake.domain}
+- Faith engagement: ${state.intake.faith}
+- Extended family obligations: ${state.intake.family}
+- First-generation professional: ${state.intake.firstgen}
+- Archetype: ${arch.name}
+- Diagnostic scores: ${scoresSummary}
+- Critical constraint dimension: ${constraintDim.label} (score: ${s[constraintDim.id]}/10)
+
+Write a 4-paragraph personalised diagnostic narrative for ${name}. Structure:
+
+Paragraph 1 (60–80 words): A specific, warm, honest opening that names what you see in her profile without being generic. Reference her archetype specifically. Speak to her like a trusted peer who has studied her situation.
+
+Paragraph 2 (70–90 words): Name her critical constraint (${constraintDim.label}) and explain the cascade logic — why THIS one, and what it is costing her across other dimensions. Be specific. Reference her actual scores where relevant.
+
+Paragraph 3 (60–80 words): Identify her strongest dimension and affirm it as the foundation to build from. Then name one adjacent dimension that is most ready to move — the "quick win" that will build momentum.
+
+Paragraph 4 (50–70 words): A closing charge anchored in one specific biblical principle from Esther, Ruth, Deborah, or another woman of Scripture. Direct and inspiring — not preachy. End with one concrete decision she should make this week.
+
+Write in second person ("you"). Tone: honest, warm, senior, grounded. No bullet points. Plain paragraphs only.`;
+
+  try{
+    const resp = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    const data = await resp.json();
+    const text = data.content?.find(c=>c.type==='text')?.text||'Unable to generate personalised narrative at this time.';
+    document.getElementById('ai-content').textContent = text;
+  }catch(e){
+    document.getElementById('ai-content').textContent = 'Your scores and archetype above provide your core diagnostic. For a personalised narrative analysis, please return to this tool when connected to the internet.';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// MAIN FLOW
+// ═══════════════════════════════════════════════════════════
+async function runDiagnostic(){
+  showScreen('screen-processing');
+  updateProgress(9,10);
+  const msgs = ['Computing your dimension scores...','Identifying your archetype...','Mapping your critical constraint...','Building your 90-day plan...','Preparing your report...'];
+  let i=0;
+  const iv = setInterval(()=>{
+    document.getElementById('proc-msg').textContent = msgs[Math.min(i++,msgs.length-1)];
+  },600);
+  await new Promise(r=>setTimeout(r,1500));
+  clearInterval(iv);
+  computeScores();
+  identifyArchetype();
+  identifyConstraint();
+  renderResults();
+}
+
+function restartDiag(){
+  state = {currentScreen:'welcome',currentDim:0,intake:{},answers:{},scores:{},archetype:null,constraint:null};
+  document.getElementById('progress-wrap').classList.add('hidden');
+  showScreen('screen-0');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PDF DOWNLOAD
+// ═══════════════════════════════════════════════════════════
+async function downloadPDF(){
+  const btn = document.getElementById('btn-pdf');
+  btn.textContent = '⏳ Generating...';
+  btn.disabled = true;
+
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+    const W = 210, M = 18, CW = W - M*2;
+    const TERRA = [168,67,42], GOLD = [201,168,76], NAVY = [26,47,71];
+    const name = state.intake.name;
+    const arch = ARCHETYPES[state.archetype];
+    const s = state.scores;
+    const constraintDim = DIMS.find(d=>d.id===state.constraint);
+    const now = new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+
+    let y = 0;
+
+    // ── Cover band ──
+    doc.setFillColor(...TERRA);
+    doc.rect(0, 0, W, 55, 'F');
+    doc.setFillColor(...GOLD);
+    doc.rect(0, 53, W, 3, 'F');
+
+    doc.setTextColor(255,255,255);
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(9);
+    doc.text('THE INTEGRATED WOMAN DIAGNOSTIC', M, 14);
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(22);
+    doc.text(`${name}'s Report`, M, 27);
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(10);
+    doc.text(arch.name + '  ·  ' + now, M, 38);
+    doc.text('theintegratedwomandiagnostic.tiiny.site', M, 48);
+
+    y = 68;
+
+    // ── Archetype card ──
+    doc.setFillColor(248,240,220);
+    doc.roundedRect(M, y, CW, 38, 3, 3, 'F');
+    doc.setTextColor(...TERRA);
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(8);
+    doc.text('YOUR ARCHETYPE', M+6, y+8);
+    doc.setFontSize(16);
+    doc.text(arch.name, M+6, y+18);
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(9);
+    doc.setTextColor(74,53,40);
+    const tagline = doc.splitTextToSize(arch.move, CW-12);
+    doc.text(tagline, M+6, y+27);
+    y += 46;
+
+    // ── Scores grid ──
+    doc.setTextColor(...NAVY);
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(10);
+    doc.text('DIMENSION SCORES', M, y+6);
+    doc.setFillColor(...GOLD);
+    doc.rect(M, y+8, 40, 1, 'F');
+    y += 14;
+
+    const scoreColors = {10:[45,106,79],9:[61,138,101],8:[76,175,129],7:[123,198,126],6:[249,199,79],5:[248,150,30],4:[243,114,44],3:[224,82,82],2:[192,57,43],1:[146,43,33]};
+    const cols = 2, colW = CW/cols, rowH = 14;
+    DIMS.forEach((d,i)=>{
+      const col = i%cols, row = Math.floor(i/cols);
+      const x = M + col*colW, dy = y + row*rowH;
+      const score = s[d.id]||5;
+      const sc = scoreColors[score]||[100,100,100];
+
+      // Score bar bg
+      doc.setFillColor(230,225,218);
+      doc.roundedRect(x+2, dy+1, colW-6, 10, 1.5, 1.5, 'F');
+      // Score fill
+      doc.setFillColor(...sc);
+      doc.roundedRect(x+2, dy+1, (colW-6)*(score/10), 10, 1.5, 1.5, 'F');
+      // Label
+      doc.setTextColor(255,255,255);
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(7.5);
+      doc.text(d.label, x+4, dy+7);
+      // Score number
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(8);
+      doc.text(`${score}/10`, x+colW-14, dy+7);
+    });
+    y += Math.ceil(DIMS.length/cols)*rowH + 8;
+
+    // ── Critical constraint ──
+    doc.setFillColor(253,235,220);
+    doc.roundedRect(M, y, CW, 26, 3, 3, 'F');
+    doc.setTextColor(...TERRA);
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(8);
+    doc.text('⚠ CRITICAL CONSTRAINT', M+5, y+8);
+    doc.setFontSize(12);
+    doc.text(constraintDim.label, M+5, y+17);
+    doc.setFont('helvetica','italic');
+    doc.setFontSize(8);
+    doc.setTextColor(74,53,40);
+    doc.text(constraintDim.biblical, M+5, y+23);
+    y += 34;
+
+    // ── AI Narrative ──
+    const aiText = document.getElementById('ai-content')?.textContent||'';
+    if(aiText && aiText.length > 30 && !aiText.startsWith('Generating')){
+      doc.setTextColor(...NAVY);
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(10);
+      doc.text('YOUR PERSONALISED ANALYSIS', M, y+6);
+      doc.setFillColor(...GOLD);
+      doc.rect(M, y+8, 40, 1, 'F');
+      y += 14;
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(9);
+      doc.setTextColor(50,40,35);
+      const lines = doc.splitTextToSize(aiText, CW);
+      // Check if we need a new page
+      if(y + lines.length*5 > 270){ doc.addPage(); y = 18; }
+      doc.text(lines, M, y);
+      y += lines.length*5 + 6;
+    }
+
+    // ── 90-Day Plan ──
+    if(y > 240){ doc.addPage(); y = 18; }
+    doc.setFillColor(...TERRA);
+    doc.rect(0, y-2, W, 0.5, 'F');
+    doc.setTextColor(...NAVY);
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(10);
+    doc.text('YOUR 90-DAY ACTION ARCHITECTURE', M, y+6);
+    doc.setFillColor(...GOLD);
+    doc.rect(M, y+8, 50, 1, 'F');
+    y += 14;
+
+    const phaseLabels=['Days 1–30: STABILISE','Days 31–60: BUILD','Days 61–90: EXTEND'];
+    const phaseFills=[[253,235,220],[232,244,236],[232,238,250]];
+    const phaseColors=[TERRA,[45,90,64],[26,47,71]];
+    phaseLabels.forEach((label,pi)=>{
+      if(y + 16 > 270){ doc.addPage(); y=18; }
+      doc.setFillColor(...phaseFills[pi]);
+      doc.roundedRect(M, y, CW, 14, 2, 2, 'F');
+      doc.setTextColor(...phaseColors[pi]);
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(8);
+      doc.text(label, M+4, y+6);
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(7.5);
+      doc.setTextColor(50,40,35);
+      doc.text(['Focus on your '+constraintDim.label+' — one daily habit, tell one person.','Build the structure that makes improvement sustainable. One structural change only.','Apply progress to unlock an adjacent dimension. Review your next constraint.'][pi], M+4, y+11);
+      y += 17;
+    });
+
+    // ── Biblical reading plan header ──
+    y += 4;
+    if(y > 240){ doc.addPage(); y=18; }
+    doc.setTextColor(...NAVY);
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(10);
+    doc.text('12-WEEK SCRIPTURE READING PLAN', M, y);
+    doc.setFillColor(...GOLD);
+    doc.rect(M, y+2, 50, 1, 'F');
+    y += 8;
+    READING_PLAN.forEach((r,i)=>{
+      if(i%2===0 && i>0 && y > 270){ doc.addPage(); y=18; }
+      const col = i%2, cx = M + col*(CW/2+2);
+      if(col===0){
+        doc.setFillColor(i%4===0?248:255, i%4===0?240:255, i%4===0?220:255);
+        doc.roundedRect(M, y, CW, 7, 1, 1, 'F');
+      }
+      doc.setTextColor(...GOLD);
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(7);
+      doc.text(`W${r.w}`, cx+1, y+5);
+      doc.setTextColor(50,40,35);
+      doc.setFont('helvetica','normal');
+      doc.text(r.theme, cx+8, y+5);
+      doc.setTextColor(120,100,90);
+      doc.text(r.pass, cx+(CW/2)-2, y+5, {align:'right'});
+      if(col===1) y += 8;
+    });
+
+    // ── Footer ──
+    const pageCount = doc.getNumberOfPages();
+    for(let p=1;p<=pageCount;p++){
+      doc.setPage(p);
+      doc.setFillColor(...TERRA);
+      doc.rect(0, 287, W, 10, 'F');
+      doc.setTextColor(255,255,255);
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(7);
+      doc.text('The Integrated Woman Diagnostic  ·  DN Consultancy  ·  Purpose · Profession · Faith', M, 293);
+      doc.text(`Page ${p} of ${pageCount}`, W-M, 293, {align:'right'});
+    }
+
+    doc.save(`IWD_Report_${name.replace(/\s+/g,'_')}_${state.archetype}.pdf`);
+  } catch(err){
+    alert('PDF generation failed. Please try the print option (Ctrl+P) as an alternative.');
+    console.error(err);
+  }
+
+  btn.textContent = '⬇ Download PDF';
+  btn.disabled = false;
+}
+
+// ═══════════════════════════════════════════════════════════
+// WHATSAPP SHARE CARD
+// ═══════════════════════════════════════════════════════════
+function shareWhatsApp(){
+  const modal = document.getElementById('wa-modal');
+  modal.style.display = 'flex';
+  const canvas = document.getElementById('share-canvas');
+  const SIZE = 900;
+  canvas.width = SIZE;
+  canvas.height = SIZE;
+  const ctx = canvas.getContext('2d');
+
+  const name = state.intake.name;
+  const arch = ARCHETYPES[state.archetype];
+  const s = state.scores;
+  const constraintDim = DIMS.find(d=>d.id===state.constraint);
+
+  // Background — ivory
+  ctx.fillStyle = '#FAF5EE';
+  ctx.fillRect(0,0,SIZE,SIZE);
+
+  // Top terracotta band
+  ctx.fillStyle = '#A8432A';
+  ctx.fillRect(0,0,SIZE,200);
+
+  // Gold accent bar
+  ctx.fillStyle = '#C9A84C';
+  ctx.fillRect(0,196,SIZE,6);
+
+  // Concentric ring decorations (subtle)
+  ctx.strokeStyle = 'rgba(201,168,76,0.12)';
+  ctx.lineWidth = 2;
+  [340,420,500].forEach(r=>{ ctx.beginPath(); ctx.arc(SIZE/2,100,r,0,Math.PI*2); ctx.stroke(); });
+
+  // Header text
+  ctx.fillStyle = 'rgba(255,255,255,0.6)';
+  ctx.font = '600 26px serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('THE INTEGRATED WOMAN DIAGNOSTIC', SIZE/2, 55);
+
+  ctx.fillStyle = '#E8C876';
+  ctx.font = 'bold 52px serif';
+  ctx.fillText(name, SIZE/2, 115);
+
+  ctx.fillStyle = 'rgba(255,255,255,0.75)';
+  ctx.font = 'italic 28px serif';
+  ctx.fillText('has discovered her archetype', SIZE/2, 160);
+
+  // Archetype badge
+  ctx.fillStyle = '#FAF0DC';
+  roundRect(ctx, 60, 225, SIZE-120, 110, 14);
+  ctx.fill();
+  ctx.strokeStyle = '#C9A84C';
+  ctx.lineWidth = 2;
+  roundRect(ctx, 60, 225, SIZE-120, 110, 14);
+  ctx.stroke();
+
+  ctx.fillStyle = '#A8432A';
+  ctx.font = '600 18px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('YOUR ARCHETYPE', SIZE/2, 260);
+
+  ctx.fillStyle = '#5C1E0A';
+  ctx.font = 'bold 44px serif';
+  ctx.fillText(arch.name, SIZE/2, 305);
+
+  ctx.fillStyle = '#7A6558';
+  ctx.font = 'italic 22px serif';
+  const tagWords = arch.move;
+  const tagLines = wrapText(ctx, tagWords, SIZE-160);
+  tagLines.slice(0,2).forEach((line,i)=>ctx.fillText(line, SIZE/2, 332+i*26));
+
+  // Scores grid
+  const gridTop = 365, cols = 4, rows = 2;
+  const cellW = (SIZE-120)/cols, cellH = 75;
+  const scoreColors = {10:'#2D6A4F',9:'#3D8A65',8:'#4CAF81',7:'#7BC67E',6:'#F9C74F',5:'#F8961E',4:'#F3722C',3:'#E05252',2:'#C0392B',1:'#922B21'};
+
+  DIMS.forEach((d,i)=>{
+    const col=i%cols, row=Math.floor(i/cols);
+    const x=60+col*cellW, y=gridTop+row*cellH;
+    const score=s[d.id]||5;
+    const sc=scoreColors[score]||'#888';
+
+    // Cell bg
+    ctx.fillStyle = i%2===0?'#F5F0E8':'#FFFFFF';
+    roundRect(ctx, x+2, y+2, cellW-6, cellH-6, 8);
+    ctx.fill();
+
+    // Score bar track
+    ctx.fillStyle = '#E0D8CC';
+    roundRect(ctx, x+6, y+cellH-20, cellW-16, 8, 4);
+    ctx.fill();
+
+    // Score bar fill
+    ctx.fillStyle = sc;
+    roundRect(ctx, x+6, y+cellH-20, (cellW-16)*(score/10), 8, 4);
+    ctx.fill();
+
+    // Label
+    ctx.fillStyle = '#4A3528';
+    ctx.font = '500 16px sans-serif';
+    ctx.textAlign = 'center';
+    const shortLabel = d.label.replace(' Architecture','').replace(' Capital','').replace(' Clarity','').replace(' Sovereignty','');
+    ctx.fillText(shortLabel, x+cellW/2, y+28);
+
+    // Score number
+    ctx.fillStyle = sc;
+    ctx.font = 'bold 28px serif';
+    ctx.fillText(score, x+cellW/2, y+56);
+  });
+
+  // Constraint highlight
+  const cTop = gridTop + rows*cellH + 16;
+  ctx.fillStyle = '#FDE8D5';
+  roundRect(ctx, 60, cTop, SIZE-120, 70, 12);
+  ctx.fill();
+  ctx.strokeStyle = '#C9A84C';
+  ctx.lineWidth = 2;
+  roundRect(ctx, 60, cTop, SIZE-120, 70, 12);
+  ctx.stroke();
+
+  ctx.fillStyle = '#A8432A';
+  ctx.font = 'bold 18px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('⚠ CRITICAL CONSTRAINT', SIZE/2, cTop+24);
+
+  ctx.fillStyle = '#5C1E0A';
+  ctx.font = 'bold 30px serif';
+  ctx.fillText(constraintDim.label, SIZE/2, cTop+54);
+
+  // Biblical quote
+  const quoteTop = cTop + 88;
+  ctx.fillStyle = '#5C1E0A';
+  ctx.font = 'italic 22px serif';
+  ctx.textAlign = 'center';
+  const qLines = wrapText(ctx, '\u201C'+constraintDim.biblical+'\u201D', SIZE-140);
+  qLines.slice(0,2).forEach((line,i)=>ctx.fillText(line, SIZE/2, quoteTop+i*28));
+
+  // Purpose · Profession · Faith
+  ctx.fillStyle = '#C9A84C';
+  ctx.fillRect(0, SIZE-80, SIZE, 2);
+  ctx.fillStyle = '#A8432A';
+  ctx.fillRect(0, SIZE-78, SIZE, 78);
+
+  ctx.fillStyle = '#E8C876';
+  ctx.font = '600 22px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('PURPOSE  ·  PROFESSION  ·  FAITH', SIZE/2, SIZE-46);
+
+  ctx.fillStyle = 'rgba(255,255,255,0.6)';
+  ctx.font = '18px sans-serif';
+  ctx.fillText('theintegratedwomandiagnostic.tiiny.site', SIZE/2, SIZE-20);
+
+  // Resize canvas for display
+  canvas.style.width = '100%';
+}
+
+function roundRect(ctx, x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.lineTo(x+w-r,y);
+  ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);
+  ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h);
+  ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r);
+  ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath();
+}
+
+function wrapText(ctx, text, maxW){
+  const words=text.split(' '), lines=[];
+  let cur='';
+  words.forEach(w=>{
+    const test=cur?cur+' '+w:w;
+    if(ctx.measureText(test).width>maxW && cur){ lines.push(cur); cur=w; }
+    else cur=test;
+  });
+  if(cur) lines.push(cur);
+  return lines;
+}
+
+function saveShareCard(){
+  const canvas=document.getElementById('share-canvas');
+  const name=state.intake.name||'IWD';
+  const a=document.createElement('a');
+  a.download=`IWD_ShareCard_${name.replace(/\s+/g,'_')}.png`;
+  a.href=canvas.toDataURL('image/png');
+  a.click();
+}
+</script>
+</body>
+</html>
