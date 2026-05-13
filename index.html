@@ -343,6 +343,22 @@ h1,h2,h3,h4{font-family:'Cormorant Garamond',serif;font-weight:600;line-height:1
     <div class="ai-content" id="ai-content">Generating your personalised narrative...</div>
   </div>
 
+  <!-- Email capture -->
+  <div class="intake-section" id="lead-card" style="margin:1.25rem 1.5rem">
+    <h3 style="color:var(--navy-mid);font-size:1.1rem;margin-bottom:.5rem">Save your diagnostic</h3>
+    <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:.9rem">Enter your email and we'll send you a copy of your archetype, constraint, and 90-day plan — plus the occasional note from DN Consultancy on integrating purpose, profession, and faith.</p>
+    <div class="form-group">
+      <label for="lead-email">Email</label>
+      <input type="email" id="lead-email" placeholder="your@email.com" autocomplete="email" />
+    </div>
+    <label style="display:flex;gap:.5rem;align-items:flex-start;font-size:.8rem;color:var(--text-muted);margin-bottom:.9rem;cursor:pointer">
+      <input type="checkbox" id="lead-consent" style="margin-top:.2rem" />
+      <span>I'd like occasional emails from DN Consultancy. Unsubscribe anytime.</span>
+    </label>
+    <button class="btn btn-navy" id="lead-submit" onclick="submitLead()" style="width:100%;justify-content:center">Save my results</button>
+    <p id="lead-status" style="font-size:.8rem;margin-top:.6rem;text-align:center;min-height:1rem"></p>
+  </div>
+
   <!-- 90-day plan -->
   <div class="plan-block" id="plan-block"></div>
 
@@ -462,15 +478,48 @@ const READING_PLAN = [
 // ═══════════════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════════════
-let state = {
-  currentScreen:'welcome',
-  currentDim:0,
-  intake:{name:'',stage:'',domain:'',faith:'',family:'',firstgen:''},
-  answers:{},  // dimId -> [1..5, ...]
-  scores:{},   // dimId -> 1..10
-  archetype:null,
-  constraint:null
-};
+const STORAGE_KEY = 'iwd_state_v1';
+const STORAGE_TTL_MS = 1000*60*60*24*30; // 30 days
+
+function freshState(){
+  return {
+    currentScreen:'welcome',
+    currentDim:0,
+    intake:{name:'',stage:'',domain:'',faith:'',family:'',firstgen:''},
+    answers:{},
+    scores:{},
+    archetype:null,
+    constraint:null,
+    aiNarrative:'',
+    leadSent:false
+  };
+}
+
+let state = freshState();
+
+function persist(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({savedAt:Date.now(),state}));
+  }catch(e){ /* quota or privacy mode — fail silently */ }
+}
+
+function loadPersisted(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return null;
+    const obj = JSON.parse(raw);
+    if(!obj?.state || !obj?.savedAt) return null;
+    if(Date.now() - obj.savedAt > STORAGE_TTL_MS){
+      localStorage.removeItem(STORAGE_KEY);
+      return null;
+    }
+    return obj.state;
+  }catch(e){ return null; }
+}
+
+function clearPersisted(){
+  try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+}
 
 // ═══════════════════════════════════════════════════════════
 // NAVIGATION
@@ -490,6 +539,8 @@ function updateProgress(step,total){
 }
 
 function startDiagnostic(){
+  state.currentScreen='screen-1';
+  persist();
   showScreen('screen-1');
   updateProgress(1,10);
 }
@@ -506,6 +557,8 @@ function submitIntake(){
   }
   state.intake = {name,stage,domain,faith,family,firstgen};
   state.currentDim = 0;
+  state.currentScreen = 'screen-dim';
+  persist();
   loadDimension(0);
   showScreen('screen-dim');
   updateProgress(2,10);
@@ -545,13 +598,15 @@ function loadDimension(idx){
 
 function selectLikert(dimId,qi,val){
   state.answers[dimId][qi] = val;
+  persist();
   const dim = DIMS.find(d=>d.id===dimId);
   loadDimension(DIMS.indexOf(dim));
 }
 
 function dimBack(){
-  if(state.currentDim===0){showScreen('screen-1');updateProgress(1,10);return;}
+  if(state.currentDim===0){state.currentScreen='screen-1';persist();showScreen('screen-1');updateProgress(1,10);return;}
   state.currentDim--;
+  persist();
   loadDimension(state.currentDim);
   updateProgress(state.currentDim+2,10);
 }
@@ -564,6 +619,7 @@ function dimNext(){
     runDiagnostic();return;
   }
   state.currentDim++;
+  persist();
   loadDimension(state.currentDim);
   updateProgress(state.currentDim+2,10);
 }
@@ -736,6 +792,8 @@ function renderResults(){
   showScreen('screen-results');
   updateProgress(10,10);
 
+  if(state.leadSent) renderLeadSent();
+
   // Call AI for narrative
   generateAIReport();
 }
@@ -746,49 +804,39 @@ function renderResults(){
 async function generateAIReport(){
   const name = state.intake.name;
   const arch = ARCHETYPES[state.archetype];
-  const s = state.scores;
   const constraintDim = DIMS.find(d=>d.id===state.constraint);
-  const scoresSummary = DIMS.map(d=>`${d.label}: ${s[d.id]}/10`).join(', ');
 
-  const prompt = `You are a senior life strategy coach working with African women, deeply grounded in Christian faith and HBR research. You are writing a personalised diagnostic narrative for a woman named ${name}.
-
-Context about ${name}:
-- Life stage: ${state.intake.stage}
-- Pressing concern: ${state.intake.domain}
-- Faith engagement: ${state.intake.faith}
-- Extended family obligations: ${state.intake.family}
-- First-generation professional: ${state.intake.firstgen}
-- Archetype: ${arch.name}
-- Diagnostic scores: ${scoresSummary}
-- Critical constraint dimension: ${constraintDim.label} (score: ${s[constraintDim.id]}/10)
-
-Write a 4-paragraph personalised diagnostic narrative for ${name}. Structure:
-
-Paragraph 1 (60–80 words): A specific, warm, honest opening that names what you see in her profile without being generic. Reference her archetype specifically. Speak to her like a trusted peer who has studied her situation.
-
-Paragraph 2 (70–90 words): Name her critical constraint (${constraintDim.label}) and explain the cascade logic — why THIS one, and what it is costing her across other dimensions. Be specific. Reference her actual scores where relevant.
-
-Paragraph 3 (60–80 words): Identify her strongest dimension and affirm it as the foundation to build from. Then name one adjacent dimension that is most ready to move — the "quick win" that will build momentum.
-
-Paragraph 4 (50–70 words): A closing charge anchored in one specific biblical principle from Esther, Ruth, Deborah, or another woman of Scripture. Direct and inspiring — not preachy. End with one concrete decision she should make this week.
-
-Write in second person ("you"). Tone: honest, warm, senior, grounded. No bullet points. Plain paragraphs only.`;
+  const payload = {
+    name,
+    intake: state.intake,
+    scores: state.scores,
+    archetype: {
+      id: state.archetype,
+      name: arch.name,
+      move: arch.move,
+      biblical: arch.biblical
+    },
+    constraint: {
+      id: constraintDim.id,
+      label: constraintDim.label,
+      biblical: constraintDim.biblical
+    }
+  };
 
   try{
-    const resp = await fetch('https://api.anthropic.com/v1/messages',{
+    const resp = await fetch('/api/generate',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1000,
-        messages:[{role:'user',content:prompt}]
-      })
+      body: JSON.stringify(payload)
     });
+    if(!resp.ok) throw new Error('HTTP '+resp.status);
     const data = await resp.json();
-    const text = data.content?.find(c=>c.type==='text')?.text||'Unable to generate personalised narrative at this time.';
+    const text = data.narrative || 'Unable to generate personalised narrative at this time.';
+    state.aiNarrative = text;
+    persist();
     document.getElementById('ai-content').textContent = text;
   }catch(e){
-    document.getElementById('ai-content').textContent = 'Your scores and archetype above provide your core diagnostic. For a personalised narrative analysis, please return to this tool when connected to the internet.';
+    document.getElementById('ai-content').textContent = 'Your scores and archetype above provide your core diagnostic. Refresh and try again, or download the PDF for your full report.';
   }
 }
 
@@ -808,11 +856,14 @@ async function runDiagnostic(){
   computeScores();
   identifyArchetype();
   identifyConstraint();
+  state.currentScreen='screen-results';
+  persist();
   renderResults();
 }
 
 function restartDiag(){
-  state = {currentScreen:'welcome',currentDim:0,intake:{},answers:{},scores:{},archetype:null,constraint:null};
+  state = freshState();
+  clearPersisted();
   document.getElementById('progress-wrap').classList.add('hidden');
   showScreen('screen-0');
 }
@@ -1217,6 +1268,108 @@ function saveShareCard(){
   a.href=canvas.toDataURL('image/png');
   a.click();
 }
+
+// ═══════════════════════════════════════════════════════════
+// LEAD CAPTURE
+// ═══════════════════════════════════════════════════════════
+async function submitLead(){
+  const emailEl = document.getElementById('lead-email');
+  const consentEl = document.getElementById('lead-consent');
+  const btn = document.getElementById('lead-submit');
+  const status = document.getElementById('lead-status');
+  const email = (emailEl.value || '').trim();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    status.style.color = 'var(--terracotta)';
+    status.textContent = 'Please enter a valid email address.';
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = 'Saving...';
+  status.style.color = 'var(--text-muted)';
+  status.textContent = '';
+
+  const arch = ARCHETYPES[state.archetype];
+  const constraintDim = DIMS.find(d=>d.id===state.constraint);
+  const payload = {
+    email,
+    name: state.intake.name,
+    intake: state.intake,
+    scores: state.scores,
+    archetype: arch ? {id: state.archetype, name: arch.name} : null,
+    constraint: constraintDim ? {id: constraintDim.id, label: constraintDim.label} : null,
+    narrative: state.aiNarrative || '',
+    consent: !!consentEl.checked
+  };
+
+  try{
+    const resp = await fetch('/api/lead', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
+    });
+    if(!resp.ok) throw new Error('HTTP '+resp.status);
+    state.leadSent = true;
+    persist();
+    renderLeadSent();
+  }catch(e){
+    btn.disabled = false;
+    btn.textContent = 'Save my results';
+    status.style.color = 'var(--terracotta)';
+    status.textContent = 'Could not save right now. Please try again.';
+  }
+}
+
+function renderLeadSent(){
+  const card = document.getElementById('lead-card');
+  if(!card) return;
+  card.innerHTML = `
+    <h3 style="color:var(--success);font-size:1.1rem;margin-bottom:.5rem">✓ Saved</h3>
+    <p style="font-size:.85rem;color:var(--text-muted)">Your diagnostic is saved. Check your inbox over the next few days for your follow-up note.</p>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// RESTORE FROM LOCALSTORAGE
+// ═══════════════════════════════════════════════════════════
+function restoreSession(){
+  const saved = loadPersisted();
+  if(!saved) return false;
+  // Skip transient screens
+  if(saved.currentScreen==='screen-processing') saved.currentScreen='screen-dim';
+  state = Object.assign(freshState(), saved);
+
+  if(state.currentScreen==='screen-results' && state.archetype){
+    renderResults();
+    if(state.aiNarrative){
+      document.getElementById('ai-content').textContent = state.aiNarrative;
+    }
+    return true;
+  }
+  if(state.currentScreen==='screen-dim'){
+    // Restore intake fields if present
+    Object.entries(state.intake||{}).forEach(([k,v])=>{
+      const el=document.getElementById('intake-'+k);
+      if(el) el.value = v||'';
+    });
+    loadDimension(state.currentDim||0);
+    showScreen('screen-dim');
+    updateProgress((state.currentDim||0)+2,10);
+    return true;
+  }
+  if(state.currentScreen==='screen-1'){
+    Object.entries(state.intake||{}).forEach(([k,v])=>{
+      const el=document.getElementById('intake-'+k);
+      if(el) el.value = v||'';
+    });
+    showScreen('screen-1');
+    updateProgress(1,10);
+    return true;
+  }
+  return false;
+}
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  restoreSession();
+});
 </script>
 </body>
 </html>

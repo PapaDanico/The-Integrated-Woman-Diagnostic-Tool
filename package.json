@@ -1,0 +1,12 @@
+{
+  "name": "the-integrated-woman-diagnostic-tool",
+  "version": "0.1.0",
+  "description": "Faith-anchored life-strategy diagnostic for African women. Static frontend + Vercel serverless functions for Claude proxy and lead capture.",
+  "private": true,
+  "engines": {
+    "node": "20.x"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0"
+  }
+}
