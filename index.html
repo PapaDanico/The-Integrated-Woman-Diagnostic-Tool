@@ -481,6 +481,18 @@ const READING_PLAN = [
 const STORAGE_KEY = 'iwd_state_v1';
 const STORAGE_TTL_MS = 1000*60*60*24*30; // 30 days
 
+// Host shown on the PDF and share card. Uses the live origin so artifacts
+// stay correct wherever this is deployed; falls back to the canonical
+// address for file:// and localhost previews.
+function siteUrl(){
+  try{
+    if(/^https?:$/.test(location.protocol) && !/^(localhost|127\.0\.0\.1)/.test(location.host)){
+      return location.host;
+    }
+  }catch(e){}
+  return 'theintegratedwomandiagnostic.tiiny.site';
+}
+
 function freshState(){
   return {
     currentScreen:'welcome',
@@ -636,28 +648,45 @@ function computeScores(){
   });
 }
 
+// Best-fit scoring matrix. Each rule adds points; the highest total wins.
+// Deterministic and order-independent (ties break by ARCHETYPE_RULES order).
+// Dominant signals (energy crisis, broadly-high profile) carry large weights
+// so they win naturally instead of relying on early-return control flow.
+const ARCHETYPE_RULES = [
+  {id:'exhausted_achiever', score:(s,ctx)=>
+    (s.energy<=3?10:0) + (s.energy<=4?4:0) + (s.energy<=4&&ctx.highCount>=2?3:0)},
+  {id:'integrated_woman', score:(s,ctx)=>
+    (ctx.highCount>=5?10:0) + (ctx.highCount===4?4:0)},
+  {id:'striving_star', score:(s)=>
+    (s.professional>=7?3:0) + (s.purpose<=4?3:0) + (s.faith<7?2:0)},
+  {id:'faith_pioneer', score:(s)=>
+    (s.purpose>=7?3:0) + (s.faith>=7?3:0) + (s.professional<=4?2:0) + (s.financial<=4?2:0)},
+  {id:'hidden_gem', score:(s)=>
+    (s.purpose>=7?3:0) + (s.professional<=4?3:0) + (s.relational<=4?2:0)},
+  {id:'community_anchor', score:(s)=>
+    (s.relational>=7?3:0) + (s.legacy>=7?3:0) + (s.financial<=4?2:0) + (s.professional<7?1:0)},
+  {id:'role_trapped', score:(s)=>
+    (s.roles<=4?3:0) + (s.professional<=4?3:0)},
+  {id:'emerging_leader', score:(s,ctx)=>
+    1 + (ctx.allMid?5:0)}
+];
+
+function rankArchetypes(scores){
+  const s = {};
+  ['purpose','roles','professional','relational','financial','faith','energy','legacy']
+    .forEach(id=>{ s[id] = Number.isFinite(scores[id]) ? scores[id] : 5; });
+  const vals = Object.values(s);
+  const ctx = {
+    highCount: vals.filter(v=>v>=7).length,
+    allMid: vals.every(v=>v>=5&&v<=6)
+  };
+  return ARCHETYPE_RULES
+    .map((r,i)=>({id:r.id, score:r.score(s,ctx), order:i}))
+    .sort((a,b)=> b.score-a.score || a.order-b.order);
+}
+
 function identifyArchetype(){
-  const s = state.scores;
-  const isHigh = id=>s[id]>=7;
-  const isLow = id=>s[id]<=4;
-  const isMid = id=>s[id]>=5&&s[id]<=6;
-
-  // Check energy first (override rule)
-  if(s.energy<=3){state.archetype='exhausted_achiever';return;}
-
-  // Count high scores
-  const highCount = Object.values(s).filter(v=>v>=7).length;
-  if(highCount>=5){state.archetype='integrated_woman';return;}
-
-  if(isHigh('professional')&&isLow('purpose')&&!isHigh('faith')){state.archetype='striving_star';return;}
-  if(isHigh('purpose')&&isHigh('faith')&&isLow('professional')&&isLow('financial')){state.archetype='faith_pioneer';return;}
-  if(isLow('energy')&&highCount>=2){state.archetype='exhausted_achiever';return;}
-  if(isHigh('purpose')&&isLow('professional')&&isLow('relational')){state.archetype='hidden_gem';return;}
-  if(isHigh('relational')&&isHigh('legacy')&&isLow('financial')&&!isHigh('professional')){state.archetype='community_anchor';return;}
-  if(isLow('roles')&&isLow('professional')){state.archetype='role_trapped';return;}
-  if(Object.values(s).every(isMid)){state.archetype='emerging_leader';return;}
-  // Default
-  state.archetype='emerging_leader';
+  state.archetype = rankArchetypes(state.scores)[0].id;
 }
 
 function identifyConstraint(){
@@ -928,7 +957,7 @@ async function downloadPDF(){
     doc.setFont('helvetica','normal');
     doc.setFontSize(10);
     doc.text(arch.name + '  ·  ' + now, M, 38);
-    doc.text('theintegratedwomandiagnostic.tiiny.site', M, 48);
+    doc.text(siteUrl(), M, 48);
 
     y = 68;
 
@@ -1257,7 +1286,7 @@ function shareWhatsApp(){
 
   ctx.fillStyle = 'rgba(255,255,255,0.6)';
   ctx.font = '18px sans-serif';
-  ctx.fillText('theintegratedwomandiagnostic.tiiny.site', SIZE/2, SIZE-20);
+  ctx.fillText(siteUrl(), SIZE/2, SIZE-20);
 
   // Resize canvas for display
   canvas.style.width = '100%';
