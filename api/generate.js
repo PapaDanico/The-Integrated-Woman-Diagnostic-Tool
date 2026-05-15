@@ -33,6 +33,22 @@ Paragraph 3 (60–80 words). Identify her strongest dimension by score and affir
 
 Paragraph 4 (50–70 words). A closing charge anchored in one specific biblical principle drawn from women in Scripture — Esther, Ruth, Deborah, Hannah, Mary, Lydia, Priscilla, Dorcas, the Proverbs 31 woman. Choose the principle that fits her archetype, not a generic verse. Direct and inspiring, never preachy. End with one concrete decision she should make this week — a single sentence, action-oriented, time-bound.
 
+# The 90-day plan
+
+In addition to the narrative, produce a personalised three-phase 90-day action plan. Exactly three phases, in this order:
+
+Phase 1 — "Days 1–30: STABILISE". Title: a short imperative specific to her constraint dimension. Body (45–70 words): the single most acute symptom in her constraint dimension given her actual scores and intake context, and one concrete daily or weekly habit to address it. Name a real first action she can take this week. Scripture: a specific verse with a one-line gloss that fits the stabilise theme and her constraint.
+
+Phase 2 — "Days 31–60: BUILD". Title: a short imperative about the structural change. Body (45–70 words): the one structural change — a system, boundary, relationship, or financial structure — that makes improvement in her constraint dimension sustainable. Tie it to her archetype's blind spot. Scripture: a specific verse with a one-line gloss fitting the build theme.
+
+Phase 3 — "Days 61–90: EXTEND". Title: a short imperative about the adjacent dimension. Body (45–70 words): name the specific adjacent dimension (by its diagnostic name) that is most ready to move given her score pattern, and how applying her constraint progress unlocks it. Scripture: a specific verse with a one-line gloss fitting the extend theme.
+
+Each phase body must reference her actual situation — her constraint, her scores, her archetype, her intake context — not generic advice. Same voice and style rules as the narrative: second person, no markdown, no lists inside the body, British English, no flowery Christianese.
+
+# Output format
+
+Return a JSON object with exactly two keys: "narrative" (a string containing the four paragraphs separated by blank lines) and "plan" (an array of exactly three phase objects, each with "phase", "title", "body", "scripture" string fields). No other keys.
+
 # Voice and style
 
 - Second person ("you") throughout. Never refer to her in third person.
@@ -52,7 +68,7 @@ Good: "Your Striving Star score pattern shows the disconnect you already feel �
 
 Bad: "You are an amazing woman on an incredible journey! Your strengths are powerful and your potential is limitless. With God's favour, you will unlock breakthrough in this season!"
 
-Return only the four paragraphs. No preamble. No closing salutation. No signature.`;
+Return only the JSON object described in the Output format section. No preamble, no markdown fences, no commentary.`;
 
 function buildUserContext({ name, intake, scores, archetype, constraint }) {
   const stageLabels = {
@@ -144,9 +160,21 @@ module.exports = async (req, res) => {
 
     const userContext = buildUserContext({ name, intake, scores, archetype, constraint });
 
+    const phaseSchema = {
+      type: 'object',
+      properties: {
+        phase: { type: 'string' },
+        title: { type: 'string' },
+        body: { type: 'string' },
+        scripture: { type: 'string' },
+      },
+      required: ['phase', 'title', 'body', 'scripture'],
+      additionalProperties: false,
+    };
+
     const response = await client.messages.create({
       model: 'claude-sonnet-4-6',
-      max_tokens: 1500,
+      max_tokens: 2500,
       system: [
         {
           type: 'text',
@@ -155,16 +183,53 @@ module.exports = async (req, res) => {
         },
       ],
       messages: [{ role: 'user', content: userContext }],
+      output_config: {
+        format: {
+          type: 'json_schema',
+          schema: {
+            type: 'object',
+            properties: {
+              narrative: { type: 'string' },
+              plan: { type: 'array', items: phaseSchema },
+            },
+            required: ['narrative', 'plan'],
+            additionalProperties: false,
+          },
+        },
+      },
     });
 
-    const narrative = response.content
+    const rawText = response.content
       .filter((b) => b.type === 'text')
       .map((b) => b.text)
-      .join('\n\n')
+      .join('')
       .trim();
+
+    let narrative = rawText;
+    let plan = null;
+    try {
+      const parsed = JSON.parse(rawText);
+      if (parsed && typeof parsed.narrative === 'string') {
+        narrative = parsed.narrative;
+      }
+      if (parsed && Array.isArray(parsed.plan)) {
+        plan = parsed.plan
+          .filter((p) => p && typeof p === 'object')
+          .slice(0, 3)
+          .map((p) => ({
+            phase: String(p.phase || ''),
+            title: String(p.title || ''),
+            body: String(p.body || ''),
+            scripture: String(p.scripture || ''),
+          }));
+      }
+    } catch (parseErr) {
+      console.error('generate JSON parse failed; returning raw narrative', parseErr);
+    }
 
     return res.status(200).json({
       narrative,
+      plan,
       usage: {
         input_tokens: response.usage.input_tokens,
         output_tokens: response.usage.output_tokens,

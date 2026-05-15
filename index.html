@@ -491,6 +491,7 @@ function freshState(){
     archetype:null,
     constraint:null,
     aiNarrative:'',
+    aiPlan:null,
     leadSent:false
   };
 }
@@ -738,26 +739,8 @@ function renderResults(){
       ✝ "${constraintDim.biblical}" — Your biblical anchor for this season.
     </div>`;
 
-  // 90-day plan
-  const phases = [
-    {cls:'p1',label:'Phase 1 — Days 1–30: STABILISE',title:`Address your ${constraintDim.label} acutely`,
-     body:`Identify the most acute symptom in your ${constraintDim.label} dimension and address it with one daily or weekly habit. This is not the time for overhaul — it is the time for one consistent action. Tell one person what you are doing.`,
-     pass:constraintDim.biblical},
-    {cls:'p2',label:'Phase 2 — Days 31–60: BUILD',title:'Construct the structural solution',
-     body:`Move beyond the acute fix and build the infrastructure: a system, a relationship, a boundary, or a financial structure that makes improvement in your ${constraintDim.label} sustainable. One structural change only.`,
-     pass:'Nehemiah 2:17–18 — Come, let us build'},
-    {cls:'p3',label:'Phase 3 — Days 61–90: EXTEND',title:'Unlock the adjacent dimension',
-     body:`With your constraint dimension stabilised and building, apply your progress to unlock one adjacent area of growth. You are no longer in crisis management — you are executing a plan. Review and set your next 90-day constraint.`,
-     pass:'Philippians 3:13–14 — Forgetting what is behind, pressing forward'}
-  ];
-  const planHtml = phases.map(p=>`
-    <div class="phase-card">
-      <div class="phase-label ${p.cls}">${p.label}</div>
-      <h4>${p.title}</h4>
-      <p>${p.body}</p>
-      <span class="scripture-badge">${p.pass}</span>
-    </div>`).join('');
-  document.getElementById('plan-block').innerHTML = `<h3>Your 90-Day Action Architecture</h3>${planHtml}`;
+  // 90-day plan (adaptive if available, else static templates)
+  renderPlan(state.aiPlan || defaultPlanPhases(constraintDim));
 
   // Biblical alignment
   const alignData = [
@@ -794,8 +777,13 @@ function renderResults(){
 
   if(state.leadSent) renderLeadSent();
 
-  // Call AI for narrative
-  generateAIReport();
+  // Generate narrative + adaptive plan. Skip the paid call if a restored
+  // session already has both cached locally.
+  if(state.aiNarrative && state.aiPlan){
+    document.getElementById('ai-content').textContent = state.aiNarrative;
+  }else{
+    generateAIReport();
+  }
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -833,11 +821,46 @@ async function generateAIReport(){
     const data = await resp.json();
     const text = data.narrative || 'Unable to generate personalised narrative at this time.';
     state.aiNarrative = text;
-    persist();
     document.getElementById('ai-content').textContent = text;
+    if(Array.isArray(data.plan) && data.plan.length>0){
+      state.aiPlan = data.plan;
+      renderPlan(data.plan);
+    }
+    persist();
   }catch(e){
     document.getElementById('ai-content').textContent = 'Your scores and archetype above provide your core diagnostic. Refresh and try again, or download the PDF for your full report.';
   }
+}
+
+// ═══════════════════════════════════════════════════════════
+// 90-DAY PLAN RENDER
+// ═══════════════════════════════════════════════════════════
+function defaultPlanPhases(constraintDim){
+  return [
+    {phase:'Days 1–30: STABILISE', title:`Address your ${constraintDim.label} acutely`,
+     body:`Identify the most acute symptom in your ${constraintDim.label} dimension and address it with one daily or weekly habit. This is not the time for overhaul — it is the time for one consistent action. Tell one person what you are doing.`,
+     scripture:constraintDim.biblical},
+    {phase:'Days 31–60: BUILD', title:'Construct the structural solution',
+     body:`Move beyond the acute fix and build the infrastructure: a system, a relationship, a boundary, or a financial structure that makes improvement in your ${constraintDim.label} sustainable. One structural change only.`,
+     scripture:'Nehemiah 2:17–18 — Come, let us build'},
+    {phase:'Days 61–90: EXTEND', title:'Unlock the adjacent dimension',
+     body:`With your constraint dimension stabilised and building, apply your progress to unlock one adjacent area of growth. You are no longer in crisis management — you are executing a plan. Review and set your next 90-day constraint.`,
+     scripture:'Philippians 3:13–14 — Forgetting what is behind, pressing forward'}
+  ];
+}
+
+function renderPlan(phases){
+  const block = document.getElementById('plan-block');
+  if(!block || !Array.isArray(phases) || phases.length===0) return;
+  const cls = ['p1','p2','p3'];
+  const planHtml = phases.slice(0,3).map((p,i)=>`
+    <div class="phase-card">
+      <div class="phase-label ${cls[i]||'p1'}">Phase ${i+1} — ${p.phase||''}</div>
+      <h4>${p.title||''}</h4>
+      <p>${p.body||''}</p>
+      <span class="scripture-badge">${p.scripture||''}</span>
+    </div>`).join('');
+  block.innerHTML = `<h3>Your 90-Day Action Architecture</h3>${planHtml}`;
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1007,13 +1030,19 @@ async function downloadPDF(){
     doc.rect(M, y+8, 50, 1, 'F');
     y += 14;
 
-    const phaseLabels=['Days 1–30: STABILISE','Days 31–60: BUILD','Days 61–90: EXTEND'];
+    const planPhases = (Array.isArray(state.aiPlan) && state.aiPlan.length>0)
+      ? state.aiPlan : defaultPlanPhases(constraintDim);
     const phaseFills=[[253,235,220],[232,244,236],[232,238,250]];
     const phaseColors=[TERRA,[45,90,64],[26,47,71]];
-    phaseLabels.forEach((label,pi)=>{
-      if(y + 16 > 270){ doc.addPage(); y=18; }
+    planPhases.slice(0,3).forEach((p,pi)=>{
+      const label = `Phase ${pi+1} — ${p.phase||''}`;
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(7.5);
+      const bodyLines = doc.splitTextToSize(p.body||'', CW-8);
+      const boxH = 9 + bodyLines.length*4 + 3;
+      if(y + boxH > 280){ doc.addPage(); y=18; }
       doc.setFillColor(...phaseFills[pi]);
-      doc.roundedRect(M, y, CW, 14, 2, 2, 'F');
+      doc.roundedRect(M, y, CW, boxH, 2, 2, 'F');
       doc.setTextColor(...phaseColors[pi]);
       doc.setFont('helvetica','bold');
       doc.setFontSize(8);
@@ -1021,8 +1050,8 @@ async function downloadPDF(){
       doc.setFont('helvetica','normal');
       doc.setFontSize(7.5);
       doc.setTextColor(50,40,35);
-      doc.text(['Focus on your '+constraintDim.label+' — one daily habit, tell one person.','Build the structure that makes improvement sustainable. One structural change only.','Apply progress to unlock an adjacent dimension. Review your next constraint.'][pi], M+4, y+11);
-      y += 17;
+      doc.text(bodyLines, M+4, y+11);
+      y += boxH + 3;
     });
 
     // ── Biblical reading plan header ──
